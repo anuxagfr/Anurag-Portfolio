@@ -1446,12 +1446,13 @@ body {
 
     .nav-menu {
         position: fixed;
-        left: -100%;
+        left: -80%;
         top: 70px;
         flex-direction: column;
         background-color: white;
         width: 100%;
-        text-align: left;
+        text-align: left
+        
         transition: 0.3s;
         box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
         padding: 2rem 0;
