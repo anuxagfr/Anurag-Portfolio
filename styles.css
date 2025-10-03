@@ -1451,7 +1451,7 @@ body {
         flex-direction: column;
         background-color: white;
         width: 100%;
-        text-align: center;
+        text-align: left;
         transition: 0.3s;
         box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
         padding: 2rem 0;
