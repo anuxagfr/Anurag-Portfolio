@@ -1775,7 +1775,7 @@ body {
     overflow: hidden;
 }
 
-.nav-link::before {
+/* .nav-link::before {
     content: '';
     position: absolute;
     top: 0;
@@ -1784,7 +1784,7 @@ body {
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.1), transparent);
     transition: left 0.5s ease;
-}
+} */
 
 .nav-link:hover::before {
     left: 100%;
