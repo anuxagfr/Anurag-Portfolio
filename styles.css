@@ -1443,21 +1443,18 @@ body {
     .hamburger {
         display: flex;
     }
-
-    .nav-menu {
-        position: fixed;
-        left: -100%;
-        top: 70px;
-        flex-direction: column;
-        background-color: white;
-        width: 100%;
-        text-align: left;
-        
-        margin:10px;
-        transition: 0.3s;
-        box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
-        padding: 4rem 0;
-    }
+.nav-menu {
+    position: fixed;
+    left: -100%;
+    top: 70px;
+    flex-direction: column;
+    background-color: white;
+    width: 100%;
+    text-align: left;
+    transition: 0.3s;
+    box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+    padding: 4rem 2rem; /* <-- Changed this for better spacing */
+}
     .nav-menu link {
         padding:20px;
     }
