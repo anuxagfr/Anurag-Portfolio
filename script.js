@@ -95,19 +95,21 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Contact form handling
+// Contact form handling
 const contactForm = document.getElementById('contactForm');
 if (contactForm) {
     contactForm.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // Get form data
-        const formData = new FormData(this);
-        const name = formData.get('name');
-        const email = formData.get('email');
-        const subject = formData.get('subject');
-        const message = formData.get('message');
+        const form = e.target;
+        const data = new FormData(form);
         
-        // Basic validation
+        // Basic validation (from your original code)
+        const name = data.get('name');
+        const email = data.get('email');
+        const subject = data.get('subject');
+        const message = data.get('message');
+
         if (!name || !email || !subject || !message) {
             showNotification('Please fill in all fields', 'error');
             return;
@@ -117,10 +119,35 @@ if (contactForm) {
             showNotification('Please enter a valid email address', 'error');
             return;
         }
-        
-        // Simulate form submission
-        showNotification('Thank you! Your message has been sent successfully.', 'success');
-        this.reset();
+
+        // Show a temporary loading/sending message
+        showNotification('Sending your message...', 'info');
+
+        // Send data to Formspree using fetch
+        fetch(form.action, {
+            method: form.method,
+            body: data,
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then(response => {
+            if (response.ok) {
+                // Show your success notification
+                showNotification('Thank you! Your message has been sent successfully.', 'success');
+                form.reset();
+            } else {
+                response.json().then(data => {
+                    if (Object.hasOwn(data, 'errors')) {
+                        const errorMsg = data["errors"].map(error => error["message"]).join(", ");
+                        showNotification(`Error: ${errorMsg}`, 'error');
+                    } else {
+                        showNotification('Oops! There was a problem submitting your form.', 'error');
+                    }
+                })
+            }
+        }).catch(error => {
+            showNotification('Oops! There was a network problem.', 'error');
+        });
     });
 }
 
