@@ -1,1089 +1,777 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DM-ANURAG - Digital Marketing & Web Developer</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Anux CDN Generator: Convert GitHub to jsDelivr CDN Links Instantly</title>
+    <meta name="description" content="Generate instant, high-performance CDN links and HTML snippets (JS, CSS, Images) directly from any GitHub repository using jsDelivr. Supports bulk ZIP download and private repos via Token.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cookie&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom styles variables */
+        :root {
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --bg-dark: #0f172a;
+            --text-light: #f8fafc;
+            --bmc-yellow: #FFDD00;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: var(--bg-dark);
+                color: var(--text-light);
+            }
+        }
+        
+        /* Utilities */
+        .font-cookie { font-family: 'Cookie', cursive; }
+        .cta-button {
+            background-color: var(--primary-color);
+            color: white !important;
+            transition: all 0.2s ease;
+        }
+        .cta-button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
 
+        /* Navbar Button */
+        .bmc-button {
+            background-color: var(--bmc-yellow);
+            color: #000000 !important;
+            font-family: 'Cookie', cursive, sans-serif;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .bmc-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        /* Coffee Steam Animation */
+        @keyframes steam {
+            0% { transform: translateY(0) opacity(1); }
+            100% { transform: translateY(-10px) opacity(0); }
+        }
+        .steam-1 { animation: steam 2s infinite 0.2s; }
+        .steam-2 { animation: steam 2s infinite 0.6s; }
+        .steam-3 { animation: steam 2s infinite 1s; }
+        
+        /* Logo SVG Colors */
+        .logo-text { color: #1e293b; }
+        .dark .logo-text { color: #f1f5f9; }
+        .logo-svg .main-path { fill: #3b82f6; }
+        .logo-svg .secondary-path { fill: #60a5fa; }
+        .dark .logo-svg .secondary-path { fill: #93c5fd; }
+
+        /* Modal Styles */
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s ease-in-out;
+        }
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+        .star-rating button {
+            transition: color 0.2s;
+        }
+        .star-rating button:hover,
+        .star-rating button.active {
+            color: #FFDD00;
+        }
+
+        /* Chat Widget Styles */
+        .chat-widget-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+            transition: transform 0.3s ease;
+        }
+        .chat-widget-btn:hover { transform: scale(1.1); }
+        .chat-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 350px;
+            max-width: 90vw;
+            height: 500px;
+            z-index: 49;
+            transform: translateY(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .chat-window.open {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+        .chat-messages { scrollbar-width: thin; }
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(0, -10px); }
+            100% { transform: translate(0, 0); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+        .animate-pulse-ring::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: inherit;
+            border-radius: 50%;
+            z-index: -1;
+            animation: pulse-ring 2s infinite;
+        }
+        
+        /* Scroll Reveal Animation Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Staggered delays for grids */
+        .delay-100 { transition-delay: 0.1s; }
+        .delay-200 { transition-delay: 0.2s; }
+        .delay-300 { transition-delay: 0.3s; }
+    </style>
 </head>
-<body>
+<body class="bg-gray-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 min-h-screen font-sans transition-colors duration-300 selection:bg-blue-500 selection:text-white">
 
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <h2>Anurag</h2>
+    <!-- Navigation Bar -->
+    <nav class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100 dark:border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="homepage.html" class="flex items-center space-x-2 group">
+                        <svg class="w-8 h-8 logo-svg transform group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path class="main-path" d="M12 2L4 22H7L12 9L17 22H20L12 2Z"/>
+                            <path class="secondary-path" d="M19 14H22V16H19V14ZM2 14H5V16H2V14ZM10 20H14V22H10V20Z"/>
+                        </svg>
+                        <span class="text-xl font-bold logo-text tracking-tight">Anux CDN</span>
+                    </a>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="cdn_generator.html" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition text-sm">Tool</a>
+                    <a href="#features" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition text-sm">Features</a>
+                    <a href="#how-it-works" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition text-sm">How It Works</a>
+                    <a href="#faq" class="text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition text-sm">FAQ</a>
+                    
+                    <!-- BMC Button -->
+                    <a href="https://www.buymeacoffee.com/Anuragfr" target="_blank" class="bmc-button px-5 py-2 rounded-full text-sm shadow-sm border border-yellow-400/50 hover:border-yellow-500">
+                        <span class="mr-2 text-lg">☕</span>
+                        Buy me a coffee
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="text-slate-600 dark:text-slate-300 hover:text-blue-500 focus:outline-none p-2 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
             </div>
-            <ul class="nav-menu">
-                <li><a href="#home" class="nav-link">Home</a></li>
-                <li><a href="#about" class="nav-link">About</a></li>
-                <li><a href="#team" class="nav-link">Team</a></li>
-                <li><a href="#services" class="nav-link">Services</a></li>
-                <li><a href="#projects" class="nav-link">Projects</a></li>
-                <li><a href="#blogs" class="nav-link">Blog</a></li>
-                <li><a href="#skills" class="nav-link">Skills</a></li>
-                <li><a href="#contact" class="nav-link">Contact</a></li>
-            </ul>
-            <div class="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800">
+            <div class="px-4 pt-2 pb-4 space-y-2">
+                <a href="cdn_generator.html" class="block px-3 py-2 rounded-md text-base font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-slate-800">Launch Tool</a>
+                <a href="#features" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800">Features</a>
+                <a href="#how-it-works" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800">How It Works</a>
+                <a href="#faq" class="block px-3 py-2 rounded-md text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800">FAQ</a>
+                <a href="https://www.buymeacoffee.com/Anuragfr" target="_blank" class="block px-3 py-3 mt-4 rounded-lg text-center font-bold text-yellow-900 bg-[#FFDD00] hover:bg-[#ffe44d]">
+                    ☕ Buy me a coffee
+                </a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="hero-container">
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    Hi, I'm <span class="highlight">Anurag</span>
-                </h1>
-                <h2 class="hero-subtitle">Digital Marketing Expert & Web Developer</h2>
-                <p class="hero-description">
-                    I help businesses grow their online presence through strategic digital marketing 
-                    and custom web development solutions. Let's turn your vision into reality.
-                </p>
-                <div class="hero-buttons">
-                    <a href="#projects" class="btn btn-primary">View My Work</a>
-                    <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+    <header class="relative text-center py-20 px-4 overflow-hidden">
+        <!-- Background Gradient Blur -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-400/20 dark:bg-blue-600/20 blur-[100px] rounded-full -z-10 animate-float"></div>
+
+        <div class="max-w-4xl mx-auto">
+            <div class="reveal active inline-flex items-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 text-xs font-semibold tracking-wide uppercase mb-6 border border-blue-100 dark:border-blue-800">
+                v2.0 Now Available
+            </div>
+            <h1 class="reveal active delay-100 text-5xl sm:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+                GitHub to CDN <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-400 dark:to-cyan-300">in milliseconds.</span>
+            </h1>
+            <p class="reveal active delay-200 mt-8 text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
+                Stop struggling with raw links. Instantly turn any GitHub file into a production-ready asset served by jsDelivr's global network.
+            </p>
+            <div class="reveal active delay-300 mt-10 flex flex-col sm:flex-row justify-center gap-4">
+                <a href="cdn_generator.html" class="cta-button px-8 py-4 text-lg font-bold rounded-full shadow-lg hover:shadow-blue-500/25 hover:-translate-y-1 transition-all duration-300">
+                    Generate CDN Link
+                </a>
+                <a href="#how-it-works" class="px-8 py-4 text-lg font-medium rounded-full text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 transition-all hover:-translate-y-1">
+                    See how it works
+                </a>
+            </div>
+            
+            <div class="reveal active delay-300 mt-8 flex items-center justify-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
+                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span>No credit card required</span>
+                <span class="mx-2">•</span>
+                <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span>Open Source</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- NEW: Logo Cloud / Trusted By -->
+    <section class="py-10 border-y border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+        <div class="max-w-6xl mx-auto px-4 text-center reveal">
+            <p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-6">Compatible with your favorite tools</p>
+            <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale transition hover:grayscale-0 duration-500">
+                <span class="text-xl font-bold font-mono hover:text-blue-500 transition">GitHub</span>
+                <span class="text-xl font-bold font-sans hover:text-red-500 transition">npm</span>
+                <span class="text-xl font-bold font-serif hover:text-blue-700 transition">WordPress</span>
+                <span class="text-xl font-bold hover:text-cyan-400 transition">React</span>
+                <span class="text-xl font-bold hover:text-green-500 transition">Vue.js</span>
+                <span class="text-xl font-bold font-mono hover:text-purple-500 transition">Bootstrap</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section id="features" class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Everything you need for production</h2>
+                <p class="text-lg text-slate-600 dark:text-slate-400">We handle the complexity of asset delivery so you can focus on code.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="reveal delay-100 bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:border-blue-500/20 transition-all duration-300 group hover:-translate-y-2">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Global Edge Network</h3>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Assets are served from over 110 Points of Presence (PoPs) worldwide via jsDelivr, ensuring low latency for every user.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="reveal delay-200 bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:border-blue-500/20 transition-all duration-300 group hover:-translate-y-2">
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Smart HTML Generation</h3>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Don't waste time writing tags. We detect file types and generate valid HTML for Scripts, CSS, and Images automatically.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="reveal delay-300 bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-xl hover:border-blue-500/20 transition-all duration-300 group hover:-translate-y-2">
+                    <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3 text-slate-900 dark:text-white">Repository Archiving</h3>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Download specific branches or full repositories as optimized ZIP files. Perfect for local backups and offline development.</p>
                 </div>
             </div>
-            <div class="hero-image">
-                <div  class="profile-card">
-                    <div class="profile-image">
-                        <i class="fas fa-user-circle"></i>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="py-16 bg-slate-900 text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div class="max-w-6xl mx-auto px-4 relative z-10">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-slate-700/50 reveal">
+                <div class="hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl font-extrabold text-blue-400 mb-1">100%</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-wide font-semibold">Free & Open</div>
+                </div>
+                <div class="hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl font-extrabold text-blue-400 mb-1">110+</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-wide font-semibold">Global Locations</div>
+                </div>
+                <div class="hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl font-extrabold text-blue-400 mb-1">Unlimited</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-wide font-semibold">Bandwidth</div>
+                </div>
+                <div class="hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl font-extrabold text-blue-400 mb-1">∞</div>
+                    <div class="text-sm text-slate-400 uppercase tracking-wide font-semibold">Peace of Mind</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="py-20 px-4 bg-gray-50 dark:bg-slate-800/50">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16 text-slate-900 dark:text-white reveal">Three steps to speed</h2>
+            
+            <div class="space-y-8">
+                <!-- Step 1 -->
+                <div class="reveal flex flex-col md:flex-row items-center bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:shadow-md">
+                    <div class="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4 md:mb-0 md:mr-6">1</div>
+                    <div class="text-center md:text-left">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Enter Repository Details</h3>
+                        <p class="text-slate-600 dark:text-slate-400 mt-1">Simply paste your GitHub username and repository name. We support all public repositories out of the box.</p>
                     </div>
-                    <div class="stats">
-                        <div class="stat">
-                            <span class="stat-number">20+</span>
-                            <span class="stat-label">Projects</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-number">2+</span>
-                            <span class="stat-label">Years</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-number">95%</span>
-                            <span class="stat-label">Satisfaction</span>
-                        </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="reveal flex flex-col md:flex-row items-center bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:shadow-md">
+                    <div class="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4 md:mb-0 md:mr-6">2</div>
+                    <div class="text-center md:text-left">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Select Your File</h3>
+                        <p class="text-slate-600 dark:text-slate-400 mt-1">Our smart file browser fetches your repo structure instantly. Just click the file you need—no cloning required.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="reveal flex flex-col md:flex-row items-center bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 transform transition-all hover:shadow-md">
+                    <div class="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4 md:mb-0 md:mr-6">3</div>
+                    <div class="text-center md:text-left">
+                        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Copy & Paste</h3>
+                        <p class="text-slate-600 dark:text-slate-400 mt-1">Get the optimized CDN link or full HTML tag instantly. Paste it into your project and you're done.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- About Section -->
-    <section id="about" class="about">
-        <div class="container">
-            <h2 class="section-title">About Me</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <p>
-                        I'm a passionate digital marketing specialist and web developer with over 2 years 
-                        of experience helping businesses achieve their online goals. My expertise spans 
-                        from creating compelling marketing strategies to building responsive, user-friendly websites.
+    <!-- Use Cases Section -->
+    <section id="uses" class="py-16 px-4 bg-white dark:bg-slate-900">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-10 reveal">
+                <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Who is this for?</h2>
+                <p class="mt-4 text-slate-600 dark:text-slate-400">Anux CDN helps thousands of creators every day.</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="reveal delay-100 p-6 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-blue-500 transition-colors">
+                    <h4 class="font-bold text-lg text-blue-500 mb-2">Developers</h4>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Quickly test libraries or assets in CodePen, JSFiddle, or local environments.</p>
+                </div>
+                <div class="reveal delay-200 p-6 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-blue-500 transition-colors">
+                    <h4 class="font-bold text-lg text-blue-500 mb-2">Maintainers</h4>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Share direct installation links for your open-source projects in your README.</p>
+                </div>
+                <div class="reveal delay-300 p-6 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-blue-500 transition-colors">
+                    <h4 class="font-bold text-lg text-blue-500 mb-2">Designers</h4>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Host portfolio images, custom fonts, and CSS stylesheets for free.</p>
+                </div>
+                <div class="reveal delay-100 p-6 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-blue-500 transition-colors">
+                    <h4 class="font-bold text-lg text-blue-500 mb-2">Students</h4>
+                    <p class="text-sm text-slate-600 dark:text-slate-400">Learn how to link external resources in HTML. Great for school projects.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials with Review Button -->
+    <section class="py-20 px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-12 text-slate-900 dark:text-white reveal">Loved by Developers</h2>
+            <div id="testimonialsGrid" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="reveal delay-100 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:scale-[1.02] transition-transform duration-300">
+                    <div class="flex text-yellow-400 mb-4">★★★★★</div>
+                    <p class="text-slate-600 dark:text-slate-300 italic mb-4">"I use this every day to host CSS files for my client prototypes. It's so much faster than setting up a repo page."</p>
+                    <div class="font-bold text-slate-900 dark:text-white">- Sarah J., Frontend Dev</div>
+                </div>
+                <div class="reveal delay-200 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:scale-[1.02] transition-transform duration-300">
+                    <div class="flex text-yellow-400 mb-4">★★★★★</div>
+                    <p class="text-slate-600 dark:text-slate-300 italic mb-4">"Finally, a tool that formats the HTML tag correctly. Saves me 30 seconds every time I need a script."</p>
+                    <div class="font-bold text-slate-900 dark:text-white">- Mike T., Student</div>
+                </div>
+                <div class="reveal delay-300 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:scale-[1.02] transition-transform duration-300">
+                    <div class="flex text-yellow-400 mb-4">★★★★★</div>
+                    <p class="text-slate-600 dark:text-slate-300 italic mb-4">"The bulk ZIP download is a lifesaver when I need to grab an old version of a repo quickly."</p>
+                    <div class="font-bold text-slate-900 dark:text-white">- Alex R., Engineer</div>
+                </div>
+            </div>
+            
+            <div class="text-center reveal">
+                <button id="openReviewModal" class="inline-flex items-center px-6 py-3 border border-slate-300 dark:border-slate-600 shadow-sm text-base font-medium rounded-full text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 transition-all hover:scale-105">
+                    <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Write a Review
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 px-4 bg-gray-50 dark:bg-slate-800/50">
+        <div class="max-w-3xl mx-auto reveal">
+            <h2 class="text-3xl font-bold text-center mb-10 text-slate-900 dark:text-white">Frequently Asked Questions</h2>
+            <div class="space-y-4">
+                <div class="reveal delay-100 bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+                    <h3 class="font-bold text-lg text-slate-900 dark:text-white mb-2">Is this completely free?</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">Yes! We use the jsDelivr open-source network which is free for everyone. We don't charge for generating the links.</p>
+                </div>
+                <div class="reveal delay-200 bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+                    <h3 class="font-bold text-lg text-slate-900 dark:text-white mb-2">What about private repositories?</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">jsDelivr works best with public repositories. For private ones, you would need a token, which we are working on supporting soon.</p>
+                </div>
+                <div class="reveal delay-300 bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+                    <h3 class="font-bold text-lg text-slate-900 dark:text-white mb-2">Is there a traffic limit?</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">For standard use, there are no limits. jsDelivr powers huge projects like Bootstrap, so it can handle your traffic.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Donation Section -->
+    <section class="py-20 px-4 flex justify-center items-center bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 reveal">
+        <div class="bg-slate-50 dark:bg-slate-800 w-full max-w-3xl rounded-3xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700 transform transition-all hover:scale-[1.01]">
+            <div class="flex flex-col md:flex-row">
+                <!-- Banner -->
+                <div class="bg-[#FFDD00] p-8 flex flex-col justify-center items-center text-center md:w-2/5 relative overflow-hidden">
+                    <div class="absolute -top-6 -left-6 w-24 h-24 bg-yellow-300 rounded-full opacity-50"></div>
+                    <div class="relative z-10 bg-white p-3 rounded-full shadow-lg mb-4 animate-bounce-slow">
+                        <svg class="w-10 h-10 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M18.5 5h-1.9c-.4-1.7-2-3-3.9-3H6c-2.2 0-4 1.8-4 4v6c0 2.2 1.8 4 4 4h.5c.8 1.8 2.5 3 4.5 3h2c2.2 0 4-1.8 4-4v-.5c2 0 3.7-1.4 4.3-3.3.7-2.4-.8-4.9-2.8-5.2zM11 17H6c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h6.7c1.1 0 2 .9 2 2v9c0 1.1-.9 2-2 2zm7.5-5.8c0 .7-.3 1.3-.8 1.8-.5.5-1.1.8-1.8.9V6.1c1.5.2 2.6 1.5 2.6 3.1z"/>
+                            <path class="steam-1" d="M8 0h1v3H8z"/>
+                            <path class="steam-2" d="M10 0h1v3h-1z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-2xl text-black font-cookie mb-1">Fuel the Code</h3>
+                    <p class="text-xs text-black font-semibold uppercase tracking-wider opacity-80">Support Anurag</p>
+                </div>
+                <!-- Content -->
+                <div class="p-8 md:w-3/5 flex flex-col justify-center text-center md:text-left">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Help keep the servers running</h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm mb-6">
+                        Anux CDN is 100% free and open source. If this tool saved you time, a coffee helps me maintain the domain and code!
                     </p>
-                    <p>
-                        I believe in data-driven approaches and staying ahead of industry trends to deliver 
-                        results that exceed expectations. Whether it's SEO optimization, social media marketing, 
-                        or custom web development, I'm committed to helping your business thrive in the digital landscape.
-                    </p>
-                    <div class="about-features">
-                        <div class="feature">
-                            <i class="fas fa-chart-line"></i>
-                            <h3>Data-Driven</h3>
-                            <p>Results-focused strategies backed by analytics</p>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-mobile-alt"></i>
-                            <h3>Responsive Design</h3>
-                            <p>Websites that work perfectly on all devices</p>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-rocket"></i>
-                            <h3>Fast Performance</h3>
-                            <p>Optimized for speed and user experience</p>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-headset"></i>
-                            <h3>Support</h3>
-                            <p>Round-the-clock assistance and maintenance</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="about-image">
-                    <div class="experience-card">
-                        <h3>Experience</h3>
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline-dot"></div>
-                                <div class="timeline-content">
-                                    <h4>Digital Marketing intern</h4>
-                                    <p>shakuntlam pvt ltd. • 2025-Present</p>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-dot"></div>
-                                <div class="timeline-content">
-                                    <h4>learn Web Developer & Digital marketing </h4>
-                                    <p>tech access learning pvt ltd • 2024-2025</p>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-dot"></div>
-                                <div class="timeline-content">
-                                    <h4>content creator</h4>
-                                    <p>Freelance • 2021-2023</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Additional elements to fill blank space -->
-                    <div class="achievements-card">
-                        <h3>Achievements</h3>
-                        <div class="achievements-grid">
-                            <div class="achievement-item">
-                                <div class="achievement-icon">
-                                    <i class="fas fa-trophy"></i>
-                                </div>
-                                <div class="achievement-content">
-                                    <h4>20+ Projects</h4>
-                                    <p>Successfully completed</p>
-                                </div>
-                            </div>
-                            <div class="achievement-item">
-                                <div class="achievement-icon">
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <div class="achievement-content">
-                                    <h4>95% Satisfaction</h4>
-                                    <p>Client satisfaction rate</p>
-                                </div>
-                            </div>
-                            <div class="achievement-item">
-                                <div class="achievement-icon">
-                                    <i class="fas fa-award"></i>
-                                </div>
-                                <div class="achievement-content">
-                                    <h4>2+ Years</h4>
-                                    <p>Industry experience</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-
-                </div>
-            </div>
-        </div>
-    </section>
-
-     <!-- Team Section 
-    <section id="team" class="team">
-        <div class="container">
-            <h2 class="section-title">Our Team</h2>
-            <p class="section-subtitle">Meet the talented professionals behind our success</p>
-            <div class="team-grid">
-                <div class="team-member">
-                    <div class="member-image">
-                        <div class="member-avatar">
-                            <i class="fas fa-code"></i>
-                        </div>
-                        <div class="member-social">
-                            <a href="https://www.linkedin.com/in/anurag-dm" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-linkedin"></i></a>
-                            <a href="https://x.com/anuxagfr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-twitter"></i></a>
-                            <a href="https://github.com/anuxagfr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-github"></i></a>
-                        </div>
-                    </div>
-                    <div class="member-info">
-                        <h3>Anurag Gautam</h3>
-                        <p class="member-role">Web Developer</p>
-                        <div class="member-skills">
-                            <span class="skill-tag">React</span>
-                            <span class="skill-tag">Node.js</span>
-                            <span class="skill-tag">JavaScript</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-image">
-                        <div class="member-avatar">
-                            <i class="fas fa-video"></i>
-                        </div>
-                        <div class="member-social">
-                            <a href="https://www.linkedin.com/in/anurag-dm" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-linkedin"></i></a>
-                            <a href="https://x.com/anuxagfr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-twitter"></i></a>
-                            <a href="https://github.com/anuxagfr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-github"></i></a>
-                        </div>
-                    </div>
-                    <div class="member-info">
-                        <h3>Sarah Johnson</h3>
-                        <p class="member-role">Video Editor</p>
-                        <div class="member-skills">
-                            <span class="skill-tag">Premiere Pro</span>
-                            <span class="skill-tag">After Effects</span>
-                            <span class="skill-tag">Motion Graphics</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-image">
-                        <div class="member-avatar">
-                            <i class="fas fa-palette"></i>
-                        </div>
-                        <div class="member-social">
-                            <a href="https://www.linkedin.com/in/anurag-dm" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-linkedin"></i></a>
-                            <a href="https://x.com/anuxagfr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-twitter"></i></a>
-                            <a href="https://github.com/anuxagfr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-github"></i></a>
-                        </div>
-                    </div>
-                    <div class="member-info">
-                        <h3>Michael Chen</h3>
-                        <p class="member-role">Graphic Designer</p>
-                        <div class="member-skills">
-                            <span class="skill-tag">Photoshop</span>
-                            <span class="skill-tag">Illustrator</span>
-                            <span class="skill-tag">InDesign</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="team-member">
-                    <div class="member-image">
-                        <div class="member-avatar">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="member-social">
-                            <a href="https://www.linkedin.com/in/anurag-dm" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-linkedin"></i></a>
-                            <a href="https://x.com/anuxagfr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-twitter"></i></a>
-                            <a href="https://github.com/anuxagfr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-github"></i></a>
-                        </div>
-                    </div>
-                    <div class="member-info">
-                        <h3>Emily Rodriguez</h3>
-                        <p class="member-role">Digital Marketing</p>
-                        <div class="member-skills">
-                            <span class="skill-tag">SEO</span>
-                            <span class="skill-tag">Google Ads</span>
-                            <span class="skill-tag">Social Media</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
- -->
-    <!-- Services Section -->
-    <section id="services" class="services">
-        <div class="container">
-            <h2 class="section-title">My Services</h2>
-            <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <h3>SEO Optimization</h3>
-                    <p>Improve your search engine rankings and drive organic traffic to your website with comprehensive SEO strategies.</p>
-                    <ul class="service-features">
-                        <li>Keyword Research & Analysis</li>
-                        <li>On-Page SEO Optimization</li>
-                        <li>Technical SEO Audits</li>
-                        <li>Content Strategy</li>
-                    </ul>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-share-alt"></i>
-                    </div>
-                    <h3>Social Media Marketing</h3>
-                    <p>Build your brand presence and engage with your audience across all major social media platforms.</p>
-                    <ul class="service-features">
-                        <li>Content Creation & Curation</li>
-                        <li>Community Management</li>
-                        <li>Paid Social Advertising</li>
-                        <li>Analytics & Reporting</li>
-                    </ul>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <h3>Web Development</h3>
-                    <p>Create stunning, responsive websites that convert visitors into customers with modern development practices.</p>
-                    <ul class="service-features">
-                        <li>Custom Website Design</li>
-                        <li>E-commerce Solutions</li>
-                        <li>WordPress Development</li>
-                        <li>Website Maintenance</li>
-                    </ul>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-ad"></i>
-                    </div>
-                    <h3>PPC Advertising</h3>
-                    <p>Drive targeted traffic and increase conversions with strategic pay-per-click advertising campaigns.</p>
-                    <ul class="service-features">
-                        <li>Google Ads Management</li>
-                        <li>Facebook & Instagram Ads</li>
-                        <li>Campaign Optimization</li>
-                        <li>ROI Tracking</li>
-                    </ul>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-chart-bar"></i>
-                    </div>
-                    <h3>Analytics & Reporting</h3>
-                    <p>Track your performance and make data-driven decisions with comprehensive analytics and reporting.</p>
-                    <ul class="service-features">
-                        <li>Google Analytics Setup</li>
-                        <li>Conversion Tracking</li>
-                        <li>Monthly Performance Reports</li>
-                        <li>Actionable Insights</li>
-                    </ul>
-                </div>
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-envelope"></i>
-                    </div>
-                    <h3>Email Marketing</h3>
-                    <p>Nurture your audience and drive sales with strategic email marketing campaigns and automation.</p>
-                    <ul class="service-features">
-                        <li>Email Campaign Design</li>
-                        <li>Automation Workflows</li>
-                        <li>List Segmentation</li>
-                        <li>A/B Testing</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Projects Section -->
-    <section id="projects" class="projects">
-        <div class="container">
-            <h2 class="section-title">Featured Projects</h2>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <div class="project-links">
-                                <a href="https://anuxagfr.github.io/GitHub-jsDelivr-CDN-Generator/" target="_blank" rel="noopener noreferrer" class="project-link"><i class="fas fa-external-link-alt"></i></a>
-                                <a href="https://github.com/anuxagfr/GitHub-jsDelivr-CDN-Generator" target="_blank" rel="noopener noreferrer" class="project-link"><i class="fab fa-github"></i></a>
-                            </div>
-                        </div>
-                        <div class="project-placeholder">
-                            <i class="fas fa-link"></i>
-                        </div>
-                        <div class="project-title-overlay">
-                            <h3>GitHub-jsDelivr-CDN-Generator</h3>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <p>A powerful and modern tool that helps developers generate CDN links directly from GitHub repositories using jsDelivr. No need to remember URL formats or manually build links.</p>
-                        <div class="project-tech">
-                            <span class="tech-tag">CSS</span>
-                            <span class="tech-tag">GitHub</span>
-                            <span class="tech-tag">jsDelivr</span>
-                            <span class="tech-tag">CDN</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <div class="project-links">
-                                <a href="https://github.com/anuxagfr/Anurag-Gautam" target="_blank" rel="noopener noreferrer" class="project-link"><i class="fab fa-github"></i></a>
-                            </div>
-                        </div>
-                        <div class="project-placeholder">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="project-title-overlay">
-                            <h3>Anurag-Gautam</h3>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <p>A centralized hub where users can quickly access social media profiles. Designed with a clean and responsive interface, ensuring a seamless user experience across all devices.</p>
-                        <div class="project-tech">
-                            <span class="tech-tag">HTML</span>
-                            <span class="tech-tag">CSS</span>
-                            <span class="tech-tag">Responsive Design</span>
-                            <span class="tech-tag">Social Media</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <div class="project-links">
-                                <a href="https://github.com/anuxagfr/Instagram-telegram-instagrapi-bot" target="_blank" rel="noopener noreferrer" class="project-link"><i class="fab fa-github"></i></a>
-                            </div>
-                        </div>
-                        <div class="project-placeholder">
-                            <i class="fab fa-telegram"></i>
-                        </div>
-                        <div class="project-title-overlay">
-                            <h3>Instagram Telegram Bot</h3>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <p>A powerful Telegram bot to control Instagram accounts using Instagrapi — supporting login, upload, like, follow, Google Sheets logging, and auto-follow features.</p>
-                        <div class="project-tech">
-                            <span class="tech-tag">Python</span>
-                            <span class="tech-tag">Telegram Bot</span>
-                            <span class="tech-tag">Instagram API</span>
-                            <span class="tech-tag">Google Sheets</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <div class="project-links">
-                                <a href="https://github.com/anuxagfr/anuxagfr" target="_blank" rel="noopener noreferrer" class="project-link"><i class="fab fa-github"></i></a>
-                            </div>
-                        </div>
-                        <div class="project-placeholder">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="project-title-overlay">
-                            <h3>Anurag Profile</h3>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <p>My main GitHub profile repository showcasing my projects, skills, and contributions to the developer community.</p>
-                        <div class="project-tech">
-                            <span class="tech-tag">GitHub</span>
-                            <span class="tech-tag">Profile</span>
-                            <span class="tech-tag">Portfolio</span>
-                            <span class="tech-tag">Documentation</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <div class="project-links">
-                                <a href="https://github.com/anuxagfr/Rosy-Massage-Home-Service" target="_blank" rel="noopener noreferrer" class="project-link"><i class="fab fa-github"></i></a>
-                            </div>
-                        </div>
-                        <div class="project-placeholder">
-                            <i class="fas fa-spa"></i>
-                        </div>
-                        <div class="project-title-overlay">
-                            <h3>Rosy Massage Home Service</h3>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <p>A professional website for Rosy Massage Home Service, featuring modern design and user-friendly interface for booking massage services.</p>
-                        <div class="project-tech">
-                            <span class="tech-tag">CSS</span>
-                            <span class="tech-tag">HTML</span>
-                            <span class="tech-tag">Web Design</span>
-                            <span class="tech-tag">Service Booking</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-image">
-                        <div class="project-overlay">
-                            <div class="project-links">
-                                <a href="https://github.com/anuxagfr/Form-" target="_blank" rel="noopener noreferrer" class="project-link"><i class="fab fa-github"></i></a>
-                            </div>
-                        </div>
-                        <div class="project-placeholder">
-                            <i class="fas fa-wpforms"></i>
-                        </div>
-                        <div class="project-title-overlay">
-                            <h3>Form Project</h3>
-                        </div>
-                    </div>
-                    <div class="project-content">
-                        <p>A comprehensive form handling project with modern UI/UX design, validation, and responsive layout for collecting user data efficiently.</p>
-                        <div class="project-tech">
-                            <span class="tech-tag">HTML</span>
-                            <span class="tech-tag">CSS</span>
-                            <span class="tech-tag">JavaScript</span>
-                            <span class="tech-tag">Form Validation</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Blog Section -->
-
-    <section id="blogs" class="blog" >
-  <div class="container">
-    <h2 class="section-title">Latest Blogs</h2>
-    <div id="blog-container" class="blog-grid"></div>
-
-    <div class="btn btn-primary" class="view-all">
-      <a href="https://webcodeze.blogspot.com/" target="_blank">View All Blogs</a>
-    </div>
-  </div>
-</section>
-    <!-- Skills Section -->
-    <section id="skills" class="skills">
-        <div class="container">
-            <h2 class="section-title">Skills & Technologies</h2>
-            <div class="skills-content">
-                <!-- Digital Marketing Skills -->
-                <div class="skills-category">
-                    <div class="category-header">
-                        <i class="fas fa-chart-line"></i>
-                    <h3>Digital Marketing</h3>
-                    </div>
-                    <div class="skills-grid">
-                        <div class="skill-card">
-                            <div class="skill-icon">
-                                <i class="fas fa-search"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>SEO</h4>
-                                <div class="skill-level">
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 95%"></div>
-                                    </div>
-                                    <span class="skill-percentage">95%</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="skill-card">
-                            <div class="skill-icon">
-                                <i class="fab fa-google"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Google Ads</h4>
-                                <div class="skill-level">
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 90%"></div>
-                                    </div>
-                                    <span class="skill-percentage">90%</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="skill-card">
-                            <div class="skill-icon">
-                                <i class="fab fa-facebook"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Facebook Ads</h4>
-                                <div class="skill-level">
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 88%"></div>
-                                    </div>
-                                    <span class="skill-percentage">88%</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="skill-card">
-                            <div class="skill-icon">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Email Marketing</h4>
-                                <div class="skill-level">
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 92%"></div>
-                                    </div>
-                                    <span class="skill-percentage">92%</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="skill-card">
-                            <div class="skill-icon">
-                                <i class="fas fa-share-alt"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Social Media</h4>
-                                <div class="skill-level">
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 85%"></div>
-                                    </div>
-                                    <span class="skill-percentage">85%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Web Development Skills -->
-                <div class="skills-category">
-                    <div class="category-header">
-                        <i class="fas fa-code"></i>
-                    <h3>Web Development</h3>
-                    </div>
-                    <div class="skills-grid">
-                        <div class="skill-card">
-                            <div class="skill-icon">
-                                <i class="fab fa-html5"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>HTML/CSS</h4>
-                                <div class="skill-level">
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 95%"></div>
-                                    </div>
-                                    <span class="skill-percentage">95%</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="skill-card">
-                            <div class="skill-icon">
-                                <i class="fab fa-js-square"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>JavaScript</h4>
-                                <div class="skill-level">
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 90%"></div>
-                                    </div>
-                                    <span class="skill-percentage">90%</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="skill-card">
-                            <div class="skill-icon">
-                                <i class="fab fa-react"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>React</h4>
-                                <div class="skill-level">
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 85%"></div>
-                                    </div>
-                                    <span class="skill-percentage">85%</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="skill-card">
-                            <div class="skill-icon">
-                                <i class="fab fa-node-js"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>Node.js</h4>
-                                <div class="skill-level">
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 80%"></div>
-                                    </div>
-                                    <span class="skill-percentage">80%</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="skill-card">
-                            <div class="skill-icon">
-                                <i class="fab fa-wordpress"></i>
-                            </div>
-                            <div class="skill-info">
-                                <h4>WordPress</h4>
-                                <div class="skill-level">
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: 88%"></div>
-                                    </div>
-                                    <span class="skill-percentage">88%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>  <section id="tools" class="tools">
-                <div class="tools-category">
-                    <h2 class="section-title">Tools & Platforms</h2>
-                    <div class="tools-marquee-container">
-                        <!-- Left gradient fade -->
-                        <div class="tools-gradient-left"></div>
-                        
-                        <!-- Right gradient fade -->
-                        <div class="tools-gradient-right"></div>
-                        
-                        <!-- Marquee track -->
-                        <div class="tools-marquee-track">
-                            <!-- First set of tools -->
-                            <div class="tool-item">
-                                <i class="fab fa-google"></i>
-                                <span>Google Analytics</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-facebook"></i>
-                                <span>Facebook Business</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-hubspot"></i>
-                                <span>HubSpot</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-mailchimp"></i>
-                                <span>Mailchimp</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-figma"></i>
-                                <span>Figma</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-github"></i>
-                                <span>GitHub</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-google"></i>
-                                <span>Google Ads</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-instagram"></i>
-                                <span>Instagram Ads</span>
-                            </div>
-                            
-                            <!-- Duplicate set for seamless infinite scroll -->
-                            <div class="tool-item">
-                                <i class="fab fa-google"></i>
-                                <span>Google Analytics</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-facebook"></i>
-                                <span>Facebook Business</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-hubspot"></i>
-                                <span>HubSpot</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-mailchimp"></i>
-                                <span>Mailchimp</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-figma"></i>
-                                <span>Figma</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-github"></i>
-                                <span>GitHub</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-google"></i>
-                                <span>Google Ads</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-instagram"></i>
-                                <span>Instagram Ads</span>
-                            </div>
-
-                        </div>
-                    </div>
-                    
-                    <!-- Mobile fallback grid -->
-                    <div class="tools-grid-mobile">
-                        <div class="tool-item">
-                            <i class="fab fa-google"></i>
-                            <span>Google Analytics</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-facebook"></i>
-                            <span>Facebook Business</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-hubspot"></i>
-                            <span>HubSpot</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-mailchimp"></i>
-                            <span>Mailchimp</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-figma"></i>
-                            <span>Figma</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-github"></i>
-                            <span>GitHub</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-google"></i>
-                            <span>Google Ads</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-instagram"></i>
-                            <span>Instagram Ads</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-linkedin"></i>
-                            <span>LinkedIn Ads</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-wordpress"></i>
-                            <span>WordPress</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-wix"></i>
-                            <span>Wix</span>
-                        </div>
-      
- </div>
-                    </div>
-                </div>
-  
-              
-        
-                    <div class="tools-marquee-container">
-                        <!-- Left gradient fade -->
-                        <div class="tools-gradient-left"></div>
-                        
-                        <!-- Right gradient fade -->
-                        <div class="tools-gradient-right"></div>
-                        
-                        <!-- Marquee track -->
-                        <div class="tools-marquee-track">
-                            <!-- First set of tools -->
-                            <div class="tool-item">
-                                <i class="fab fa-linkedin"></i>
-                                <span>LinkedIn Ads</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-wordpress"></i>
-                                <span>WordPress</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-wix"></i>
-                                <span>Wix</span>
-                            </div>
-                          <div class="tool-item"><img src="icon/canva.svg" 
-                            alt="Canva" class="icon"><span>Canva</span></div>
- <div class="tool-item">
-                             <img src="icon/Bootstrap.svg" alt="Canva" class="icon">
-                                <span>bootstrap</span>
-                            </div>
-                             <div class="tool-item">
-                                <i class="fab fa-blogger"></i>
-                                <span>blogger</span>
-                            </div> <div class="tool-item">
-                                <i class="fab fa-shopify"></i>
-                                <span>shopify</span>
-                            </div>
-                             <div class="tool-item">
-                        <img src="icon/Firebase.svg" alt="firebase" class="icon">
-                                <span>firebase</span>
-                            </div> <div class="tool-item">
-                                <img src="icon/Logo google android studio.svg" alt="android studio" class="icon">
-                                <span>android studio</span>
-                            </div> <div class="tool-item">
-                                <img src="icon/Vs code logo microsoft.svg" alt="vscode" class="icon">
-                                <span>vscode</span>
-                            </div>
-                            <!-- Duplicate set for seamless infinite scroll -->
-                                                     <div class="tool-item">
-                                <i class="fab fa-linkedin"></i>
-                                <span>LinkedIn Ads</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-wordpress"></i>
-                                <span>WordPress</span>
-                            </div>
-                            <div class="tool-item">
-                                <i class="fab fa-wix"></i>
-                                <span>Wix</span>
-                            </div>
-                    
-                                                    <div class="tool-item">
-  <img src="icon/canva.svg" alt="Canva" class="icon">
-  <span>Canva</span>
-</div>
-                        <div class="tool-item">
-                             <img src="icon/Bootstrap.svg" alt="Canva" class="icon">
-                                <span>bootstrap</span>
-                            </div> <div class="tool-item">
-                                <i class="fab fa-blogger"></i>
-                                <span>blogger</span>
-                            </div> <div class="tool-item">
-                                <i class="fab fa-shopify"></i>
-                                <span>shopify</span>
-                            </div>
-                             <div class="tool-item">
-                        <img src="icon/Firebase.svg" alt="firebase" class="icon">
-                                <span>firebase</span>
-                            </div> <div class="tool-item">
-                                <img src="icon/Logo google android studio.svg" alt="android studio" class="icon">
-                                <span>android studio</span>
-                            </div> <div class="tool-item">
-                                <img src="icon/Vs code logo microsoft.svg" alt="vscode" class="icon">
-                                <span>vscode</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Mobile fallback grid -->
-                    <div class="tools-grid-mobile">
-                        <div class="tool-item">
-                            <i class="fab fa-google"></i>
-                            <span>Google Analytics</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-facebook"></i>
-                            <span>Facebook Business</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-hubspot"></i>
-                            <span>HubSpot</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-mailchimp"></i>
-                            <span>Mailchimp</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-figma"></i>
-                            <span>Figma</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-github"></i>
-                            <span>GitHub</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-google"></i>
-                            <span>Google Ads</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-instagram"></i>
-                            <span>Instagram Ads</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-linkedin"></i>
-                            <span>LinkedIn Ads</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-wordpress"></i>
-                            <span>WordPress</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-wix"></i>
-                            <span>Wix</span>
-                        </div>
-                        <div class="tool-item">
-                            <i class="fab fa-canva"></i>
-                            <span>Canva</span>
-                        </div>
-                
-                </div>
-    </section>
-    <!-- Contact Section -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <h2 class="section-title">Get In Touch</h2>
-            <div class="contact-content">
-                <div class="contact-info">
-                    <h3>Let's Work Together</h3>
-                    <p>Ready to take your business to the next level? I'd love to hear about your project and discuss how we can achieve your goals together.</p>
-                    <div class="contact-details">
-                        <div class="contact-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <h4>Email</h4>
-                                <p>anuraggautam4570@gmail.com</p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <h4>Phone</h4>
-                                <p>+91 8287262645</p>
-                            </div>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <h4>Location</h4>
-                                <p>New Delhi, India</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="social-links">
-                        <a href="https://www.linkedin.com/in/anurag-dm" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://x.com/anuxagfr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-twitter"></i></a>
-                        <a href="https://github.com/anuxagfr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-github"></i></a>
-                        <a href="https://www.facebook.com/anuxagfr/?rdid=HkF1k2VwaXPRXdQ6" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-facebook"></i></a>
-                        <a href="https://www.instagram.com/anuxagfr" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.youtube.com/@venomxeditz" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-
-                
-                <div class="contact-form">
-                <form id="contactForm" action="https://formspree.io/f/xblqybbl" method="POST">
-                    
-                        <div class="form-group">
-                            <input type="text" id="name" name="name" placeholder="Your Name" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="email" id="email" name="email" placeholder="Your Email" required>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" id="subject" name="subject" placeholder="Subject" required>
-                        </div>
-                        <div class="form-group">
-                            <textarea id="message" name="message" placeholder="Your Message" rows="5" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Send Message</button>
-                    </form>
+                    <a href="https://www.buymeacoffee.com/Anuragfr" target="_blank" class="group relative w-full flex items-center justify-center py-3 px-6 border border-transparent rounded-xl text-black font-bold bg-[#FFDD00] hover:bg-[#ffe44d] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition-all shadow-md hover:shadow-lg hover:-translate-y-1">
+                        <span class="font-cookie text-2xl mr-2">☕</span>
+                        <span>Buy me a coffee</span>
+                    </a>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Anurag kumar</h3>
-                    <p>Digital Marketing Expert & Web Developer</p>
+    <footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div class="col-span-1 md:col-span-1">
+                <div class="flex items-center space-x-2 mb-4">
+                    <svg class="w-6 h-6 text-blue-500" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 22H7L12 9L17 22H20L12 2Z" fill="currentColor"/></svg>
+                    <span class="text-xl font-bold text-white">Anux CDN</span>
                 </div>
-                <div class="footer-section">
-                    <h4>Quick Links</h4>
-                    <ul>
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">About</a></li>
-                        <li><a href="#team">Team</a></li>
-                        <li><a href="#services">Services</a></li>
-                        <li><a href="#blogs">Blog</a></li>
-                        <li><a href="#projects">Projects</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Services</h4>
-                    <ul>
-                        <li><a href="#services">SEO Optimization</a></li>
-                        <li><a href="#services">Web Development</a></li>
-                        <li><a href="#services">Social Media Marketing</a></li>
-                        <li><a href="#services">PPC Advertising</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Connect</h4>
-                    <div class="footer-social">
-                        <a href="https://www.linkedin.com/in/anurag-dm" target="_blank" rel="noopener noreferrer"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://x.com/anuxagfr" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a>
-                        <a href="https://github.com/anuxagfr" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a>
-                        <a href="https://www.instagram.com/anuxagfr" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
+                <p class="text-sm text-slate-400">Making GitHub assets production-ready for developers worldwide.</p>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2023 Anurag kumar. All rights reserved.</p>
+            <div>
+                <h4 class="text-white font-bold mb-4">Product</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="cdn_generator.html" class="hover:text-blue-400 transition">Generator Tool</a></li>
+                    <li><a href="#features" class="hover:text-blue-400 transition">Features</a></li>
+                    <li><a href="#faq" class="hover:text-blue-400 transition">FAQ</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-4">Resources</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="https://www.jsdelivr.com/" target="_blank" class="hover:text-blue-400 transition">jsDelivr Docs</a></li>
+                    <li><a href="https://github.com/" target="_blank" class="hover:text-blue-400 transition">GitHub API</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-4">Connect</h4>
+                <ul class="space-y-3 text-sm">
+                    <li class="text-slate-400 flex items-center">
+                        <span class="mr-2">Owner:</span> 
+                        <span class="text-white font-medium">Anurag</span>
+                    </li>
+                    <!-- <li>
+                        <a href="mailto:contact@anuragfr.com" class="hover:text-blue-400 transition flex items-center group">
+                            <svg class="w-4 h-4 mr-2 text-slate-500 group-hover:text-blue-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            Contact
+                        </a>
+                    </li> -->
+                    <!-- <li>
+                        <a href="https://instagram.com/anuxagfr" target="_blank" class="hover:text-pink-400 transition flex items-center group">
+                            <svg class="w-4 h-4 mr-2 text-slate-500 group-hover:text-pink-400 transition" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                            Instagram <span class="opacity-75 text-xs ml-1">@anuxagfr</span> -->
+                        </a>
+                    </li>
+                    <li><a href="https://anuxagfr.github.io/Anurag-Portfolio/" target="_blank" class="hover:text-blue-400 transition">My Portfolio</a></li>
+                    <li><a href="https://www.buymeacoffee.com/Anuragfr" class="hover:text-yellow-400 transition">Buy me a coffee</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-6xl mx-auto px-4 border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-sm text-slate-500 text-center md:text-left">
+                &copy; 2025 Anux CDN Generator. All rights reserved.
+            </div>
+            <div class="text-sm text-slate-500 flex items-center gap-1">
+                Created with <span class="text-red-500 animate-pulse">♥</span> by 
+                <a href="https://github.com/anuxagfr" target="_blank" class="text-slate-300 hover:text-white font-medium transition border-b border-transparent hover:border-white">
+                    Anurag
+                </a>
             </div>
         </div>
     </footer>
 
-    <script src="script.js"></script>
-<!-- Blogger JSONP Feed -->
-<script src="https://webcodeze.blogspot.com/feeds/posts/default?alt=json-in-script&max-results=3&callback=showBlogs"></script>
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+        <div class="modal-content bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl p-6 relative">
+            <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
 
+            <!-- Form Content -->
+            <div id="modalForm">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">Share your experience</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">How was your experience using Anux CDN?</p>
+
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Name</label>
+                    <input type="text" id="reviewName" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-white text-sm" placeholder="John Doe">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Rating</label>
+                    <div class="flex space-x-2 star-rating">
+                        <button class="text-3xl text-gray-300 hover:scale-110 focus:outline-none" data-value="1">★</button>
+                        <button class="text-3xl text-gray-300 hover:scale-110 focus:outline-none" data-value="2">★</button>
+                        <button class="text-3xl text-gray-300 hover:scale-110 focus:outline-none" data-value="3">★</button>
+                        <button class="text-3xl text-gray-300 hover:scale-110 focus:outline-none" data-value="4">★</button>
+                        <button class="text-3xl text-gray-300 hover:scale-110 focus:outline-none" data-value="5">★</button>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Your Review</label>
+                    <textarea id="reviewText" rows="3" class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-white text-sm resize-none" placeholder="It works great!"></textarea>
+                </div>
+
+                <button id="submitReview" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all">
+                    Submit Review
+                </button>
+            </div>
+
+            <!-- Success Message (Hidden by default) -->
+            <div id="modalSuccess" class="hidden text-center py-8">
+                <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Thank you!</h3>
+                <p class="text-slate-500 dark:text-slate-400">Your feedback helps us improve.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Floating Chat Widget -->
+    <button id="chatToggle" class="chat-widget-btn bg-blue-600 hover:bg-blue-700 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center animate-pulse-ring">
+        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+    </button>
+
+    <div id="chatWindow" class="chat-window bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
+        <!-- Chat Header -->
+        <div class="bg-blue-600 p-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <h3 class="text-white font-bold">Support Assistant</h3>
+            </div>
+            <button id="closeChat" class="text-blue-100 hover:text-white">✕</button>
+        </div>
+        
+        <!-- Chat Messages -->
+        <div id="chatMessages" class="chat-messages flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50 dark:bg-slate-900">
+            <!-- Welcome Message -->
+            <div class="flex items-start">
+                <div class="bg-blue-100 dark:bg-blue-900 text-slate-800 dark:text-slate-200 p-3 rounded-lg rounded-tl-none max-w-[85%] text-sm shadow-sm">
+                    Hi there! 👋 I'm the Anux AI assistant. I can help you generate links or answer tech questions.
+                </div>
+            </div>
+            <div class="flex items-start">
+                 <div class="bg-blue-100 dark:bg-blue-900 text-slate-800 dark:text-slate-200 p-3 rounded-lg rounded-tl-none max-w-[85%] text-sm shadow-sm leading-relaxed">
+                    Need human help? Contact Owner <strong>Anurag</strong> directly:<br>
+                    <!-- • <a href="mailto:contact@anuragfr.com" class="text-blue-600 dark:text-blue-400 underline hover:text-blue-500">Email Support</a><br> -->
+                    • <a href="https://instagram.com/anuxagfr" target="_blank" class="text-pink-600 dark:text-pink-400 underline hover:text-pink-500">Instagram (@anuxagfr)</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Input -->
+        <div class="p-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+            <div class="flex space-x-2">
+                <input type="text" id="chatInput" class="flex-1 px-3 py-2 bg-slate-100 dark:bg-slate-900 border border-transparent focus:border-blue-500 rounded-lg text-sm dark:text-white focus:outline-none" placeholder="Ask a question...">
+                <button id="sendMessage" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Global API Key ---
+        const apiKey = "AIzaSyDbiE9GiOr__azJtpdN1nAecPz-frcp7wA"; // Paste your key inside these quotes
+
+        // --- Theme & Mobile Menu ---
+        (function() { if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { document.body.classList.add('dark'); } })();
+        document.addEventListener('DOMContentLoaded', function () {
+            const btn = document.getElementById('mobile-menu-button');
+            const menu = document.getElementById('mobile-menu');
+            if (btn && menu) { btn.addEventListener('click', () => menu.classList.toggle('hidden')); }
+
+            // --- Scroll Reveal ---
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('active'); observer.unobserve(entry.target); }});
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+            // --- Review Modal (Simplified for brevity) ---
+            const rModal = document.getElementById('reviewModal');
+            document.getElementById('openReviewModal')?.addEventListener('click', () => { rModal.classList.add('active'); });
+            document.getElementById('closeModal')?.addEventListener('click', () => { rModal.classList.remove('active'); });
+            const stars = document.querySelectorAll('.star-rating button');
+            let rating = 0;
+            stars.forEach(s => s.addEventListener('click', () => { rating = s.dataset.value; stars.forEach(btn => btn.style.color = btn.dataset.value <= rating ? '#FFDD00' : '#d1d5db'); }));
+            document.getElementById('submitReview')?.addEventListener('click', () => {
+                if(!rating) return alert("Select a rating!");
+                const text = document.getElementById('reviewText').value;
+                const name = document.getElementById('reviewName').value || "Anonymous";
+                const html = `<div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-blue-200 dark:border-blue-900 animate-fade-in-up"><div class="flex text-yellow-400 mb-4">${"★".repeat(rating)}</div><p class="text-slate-600 dark:text-slate-300 italic mb-4">"${text}"</p><div class="font-bold text-slate-900 dark:text-white">- ${name}</div></div>`;
+                document.getElementById('testimonialsGrid').insertAdjacentHTML('afterbegin', html);
+                document.getElementById('modalForm').classList.add('hidden');
+                document.getElementById('modalSuccess').classList.remove('hidden');
+                setTimeout(() => { rModal.classList.remove('active'); document.getElementById('modalForm').classList.remove('hidden'); document.getElementById('modalSuccess').classList.add('hidden'); }, 2000);
+            });
+
+            // --- CHAT WIDGET LOGIC ---
+            const chatBtn = document.getElementById('chatToggle');
+            const chatWindow = document.getElementById('chatWindow');
+            const closeChat = document.getElementById('closeChat');
+            const chatInput = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendMessage');
+            const messagesContainer = document.getElementById('chatMessages');
+
+            // Toggle Chat
+            const toggleChat = () => chatWindow.classList.toggle('open');
+            chatBtn.addEventListener('click', toggleChat);
+            closeChat.addEventListener('click', toggleChat);
+
+            // Add Message Helper
+            const addMessage = (text, isUser = false) => {
+                const div = document.createElement('div');
+                div.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+                div.innerHTML = `
+                    <div class="${isUser ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-blue-100 dark:bg-blue-900 text-slate-800 dark:text-slate-200 rounded-tl-none'} p-3 rounded-lg max-w-[85%] text-sm shadow-sm animate-fade-in-up">
+                        ${text}
+                    </div>
+                `;
+                messagesContainer.appendChild(div);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            };
+
+            // Send Logic
+            const handleSend = async () => {
+                const text = chatInput.value.trim();
+                if (!text) return;
+
+                // 1. User Message
+                addMessage(text, true);
+                chatInput.value = '';
+
+                // 2. Loading State
+                const loadingId = 'loading-' + Date.now();
+                const loadingDiv = document.createElement('div');
+                loadingDiv.id = loadingId;
+                loadingDiv.className = 'flex justify-start';
+                loadingDiv.innerHTML = `<div class="bg-gray-100 dark:bg-slate-700 p-3 rounded-lg text-xs text-slate-500">Thinking...</div>`;
+                messagesContainer.appendChild(loadingDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                // 3. Get API Key (Environment or User Input)
+                let currentKey = apiKey;
+                if (!currentKey) {
+                    currentKey = localStorage.getItem("gemini_api_key");
+                    if (!currentKey) {
+                        currentKey = prompt("To use the AI Assistant, please enter your Google Gemini API Key:");
+                        if (currentKey) localStorage.setItem("gemini_api_key", currentKey);
+                    }
+                }
+
+                if (!currentKey) {
+                    document.getElementById(loadingId).remove();
+                    addMessage("⚠️ AI features require a valid API Key. Please refresh and try again.", false);
+                    return;
+                }
+
+                try {
+                    // 4. Call Gemini API
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${currentKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: "You are a helpful support assistant for a tool called 'Anux CDN Generator'. Keep answers short (under 50 words). User says: " + text }] }]
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        if (response.status === 400) throw new Error("Invalid API Key");
+                        throw new Error("API Error");
+                    }
+                    
+                    const data = await response.json();
+                    const reply = data.candidates[0].content.parts[0].text;
+
+                    document.getElementById(loadingId).remove();
+                    addMessage(reply, false);
+
+                } catch (error) {
+                    document.getElementById(loadingId).remove();
+                    console.error(error);
+                    if (error.message === "Invalid API Key") {
+                        localStorage.removeItem("gemini_api_key"); // Clear bad key
+                        addMessage("❌ The API Key provided was invalid. Please refresh to try again.", false);
+                    } else {
+                        addMessage("Sorry, I'm having trouble connecting right now. Please try again.", false);
+                    }
+                }
+            };
+
+            sendBtn.addEventListener('click', handleSend);
+            chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
+        });
+    </script>
 </body>
-</html> 
+</html>
